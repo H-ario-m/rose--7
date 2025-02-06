@@ -3,8 +3,6 @@
   <meta charset="UTF-8">
   <title>3D Rose</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.3.1/p5.js"></script>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <script src="sketch.js"></script>
   <style>
     body {
       background-color: #eaf4fc;
@@ -14,17 +12,66 @@
     .text-container {
       color: #69821b;
       font-weight: 600;
-      margin: 20px;
+      margin: 60px;
     }
     #canvas {
       display: block;
       margin: auto;
     }
   </style>
+  <script>
+    let v = [];
+    let cols = 600, rows = 30;
+    let t_D = 180 * 15 / cols;
+    let r_D = 1 / rows;
+    let canvas;
+
+    function setup() {
+      canvas = createCanvas(700, 700, WEBGL);
+      canvas.parent('canvas-container');
+      colorMode(HSB);
+      angleMode(DEGREES);
+      noStroke();
+    }
+
+    function draw() {
+      clear();
+      orbitControl(4, 4);
+      rotateX(-30);
+      for (let r = 0; r <= rows; r++) {
+        v.push([]);
+        for (let theta = 0; theta <= cols; theta++) {
+          let phi = (180 / 2) * Math.exp(-theta * t_D / (8 * 180));
+          let petalCut = 1 - (1 / 2) * pow((5 / 4) * pow(1 - ((3.6 * theta * t_D % 360) / 180), 2) - 1 / 4, 2);
+          let hangDown = 2 * pow(r * r_D, 2) * pow(1.3 * r * r_D - 1, 2) * sin(phi);
+          let pX = 260 * petalCut * (r * r_D * sin(phi) + hangDown * cos(phi)) * sin(theta * t_D);
+          let pY = -260 * petalCut * (r * r_D * cos(phi) - hangDown * sin(phi));
+          let pZ = 260 * petalCut * (r * r_D * sin(phi) + hangDown * cos(phi)) * cos(theta * t_D);
+          let pos = createVector(pX, pY, pZ);
+          v[r].push(pos);
+        }
+      }
+      for (let r = 0; r < v.length; r++) {
+        fill(340, 100, -20 + r * r_D * 120);
+        for (let theta = 0; theta < v[r].length; theta++) {
+          if (r < v.length - 1 && theta < v[r].length - 1) {
+            beginShape();
+            vertex(v[r][theta].x, v[r][theta].y, v[r][theta].z);
+            vertex(v[r + 1][theta].x, v[r + 1][theta].y, v[r + 1][theta].z);
+            vertex(v[r + 1][theta + 1].x, v[r + 1][theta + 1].y, v[r + 1][theta + 1].z);
+            vertex(v[r][theta + 1].x, v[r][theta + 1].y, v[r][theta + 1].z);
+            endShape(CLOSE);
+          }
+        }
+      }
+      v = [];
+    }
+  </script>
 </head>
 <body>
-  <div class="text-container">This is a beautiful 3D rose.</div>
+  <div class="text-container" style="font-size: 40px;font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; ">HAPPY ROSE DAY, BUBU </div>
   <div id="canvas-container"></div>
-  <div class="text-container">Nature's beauty in digital form.</div>
+  <div class="text-container">Huhh, mai aur sundar sa pyaara sa bhi bhejunga aapko;
+     tab tak mere sundar se gulab ke liye pyaara sa digital gulab </div>
 </body>
 </html>
